@@ -1,0 +1,911 @@
+{
+  "name": "POV videos",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -560,
+        380
+      ],
+      "id": "e96e12e5-d5d7-48ea-baa4-7d7b441c1863",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "11eXboMWgfD8aLDphjBCnKpW59Wr3vCB2Ef8xij_Ww5U",
+          "mode": "list",
+          "cachedResultName": "Automate POV videos with AI V2 - template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11eXboMWgfD8aLDphjBCnKpW59Wr3vCB2Ef8xij_Ww5U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11eXboMWgfD8aLDphjBCnKpW59Wr3vCB2Ef8xij_Ww5U/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "production",
+              "lookupValue": "ready"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -380,
+        380
+      ],
+      "id": "5cd11aca-4b26-4383-8adc-8d208dbfacdb",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nRfdhHMczklpi13G",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.aimlapi.com/v1/images/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"prompt\": \"{{ $json.prompt }}\",\n  \"num_images\": 1,\n  \"enable_safety_checker\": true,\n  \"image_size\": {\n    \"width\": 720,\n    \"height\": 1280\n  },\n  \"sync_mode\": false,\n  \"model\": \"flux/dev\",\n  \"guidance_scale\": 3.5\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        320
+      ],
+      "id": "5a82a16b-8a49-4556-b236-32d3856ab23b",
+      "name": "Text to image",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "S1R6r4H1ZQuokA4F",
+          "name": "AI ML"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "message.content.scenes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        380,
+        60
+      ],
+      "id": "3de959aa-07a8-4095-a33c-32d8fce0c598",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "content": "## Generate Prompts",
+        "height": 220,
+        "width": 500,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fe66a083-1865-4a21-8e82-87922c3edf5b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Generate Images",
+        "height": 220,
+        "width": 500,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        260
+      ],
+      "id": "fa7c2c34-bc36-4aeb-8fcf-cc78976b9b50",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Fetch Video Information",
+        "height": 220,
+        "width": 320,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -580,
+        320
+      ],
+      "id": "d1f42b0c-e608-4710-92d5-49d6efc172b9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.aimlapi.com/v2/generate/video/kling/generation",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n    \"prompt\": \"{{ $('Split Out').item.json.prompt }}\",\n    \"duration\": \"5\",\n    \"ratio\": \"9:16\",\n    \"model\": \"kling-video/v1.6/standard/image-to-video\",\n    \"image_url\": \"{{ $('Text to image').item.json.images[0].url }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        60,
+        580
+      ],
+      "id": "e49301bb-4c54-46bb-8bb2-87c568f904dc",
+      "name": "Image to video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "S1R6r4H1ZQuokA4F",
+          "name": "AI ML"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Generate Videos",
+        "height": 220,
+        "width": 500,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        520
+      ],
+      "id": "1b482317-7a21-45a5-abfc-d7cfaa0858d0",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.id.split(\":\")[0] }}.mp3",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1frTtfAIRw-uH4Befu8N3sqJZlN3pQpLj",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1frTtfAIRw-uH4Befu8N3sqJZlN3pQpLj"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        240,
+        840
+      ],
+      "id": "33786dc2-6598-49ec-ad29-d8d8fc88fcf0",
+      "name": "Upload Mp3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lqcqrqAHjslId0GL",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "writer",
+            "type": "anyone",
+            "allowFileDiscovery": true
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        380,
+        840
+      ],
+      "id": "a3f53572-5bf4-4035-be17-57117cc6990f",
+      "name": "Grant Access",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lqcqrqAHjslId0GL",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Generate Sound Effects",
+        "height": 220,
+        "width": 500,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        780
+      ],
+      "id": "f652e317-135e-4cc9-bae1-160ee30d5911",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/sound-generation",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"text\": \"Relaxing sound, {{ $('Split Out').item.json.sound }}\",\n  \"duration_seconds\": 5,\n  \"prompt_influence\": 0.5\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        840
+      ],
+      "id": "f5142859-0186-4bb5-a24e-8410872457aa",
+      "name": "Text to sound",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kRsoiJmx2GOdnDWb",
+          "name": "ELEVENLABS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.aimlapi.com/v2/generate/video/kling/generation",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "generation_id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        380,
+        580
+      ],
+      "id": "fbe76c07-410d-471b-91a3-d65c7abb19c6",
+      "name": "Get Video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "S1R6r4H1ZQuokA4F",
+          "name": "AI ML"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Render video",
+        "height": 220,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        0
+      ],
+      "id": "4c99290d-3bf4-440e-9052-7366d5c5c57a",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/tmp/n8n/final_output.mp4",
+        "options": {
+          "dataPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        60
+      ],
+      "id": "51f8cff1-9271-4505-96b7-035516a8e31c",
+      "name": "Get Video from Disk"
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        580
+      ],
+      "id": "44c999a7-16a6-421b-84bc-d1f89f78c567",
+      "name": "Wait 10 min",
+      "webhookId": "6b4e5e9b-0773-4396-ae8f-8f5cf942e878"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Google Sheets').first().json['POV Video Title'] }}",
+        "regionCode": "US",
+        "categoryId": "=Entertainment",
+        "options": {
+          "description": "={{ $('Google Sheets').first().json['Immersive Scene Description'] }}",
+          "privacyStatus": "private"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        820,
+        320
+      ],
+      "id": "c8ddf199-4af2-4d37-a663-3c6181c18854",
+      "name": "YouTube",
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "6uuox4Qse2t70KjB",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "11eXboMWgfD8aLDphjBCnKpW59Wr3vCB2Ef8xij_Ww5U",
+          "mode": "list",
+          "cachedResultName": "Automate POV videos with AI V2 - template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11eXboMWgfD8aLDphjBCnKpW59Wr3vCB2Ef8xij_Ww5U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/128utscE4zMXnWmXM974IshLPkbK6GK3WXDXwdNzYcnA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "production": "done",
+            "row_number": "={{ $('Google Sheets').first().json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "caption",
+              "displayName": "caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "production",
+              "displayName": "production",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enviroment_prompt",
+              "displayName": "enviroment_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "publishing",
+              "displayName": "publishing",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "final_output",
+              "displayName": "final_output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "rating",
+              "displayName": "rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1020,
+        320
+      ],
+      "id": "b14077a9-6342-4ce4-820a-dbd70412c0e1",
+      "name": "Update google sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PSysha38LEYZ16C3",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Upload Video to YouTube",
+        "height": 220,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        260
+      ],
+      "id": "e7d27898-58c9-443c-a752-9909a70121f8",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Google Sheets').first().json['POV Video Title'] }}"
+            },
+            {
+              "name": "platform[]",
+              "value": "tiktok"
+            },
+            {
+              "name": "use",
+              "value": "matheus_lisouza"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "video",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "31fada80-c21c-4505-b056-5fc59576437b",
+      "name": "TikTok",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        760,
+        580
+      ],
+      "notesInFlow": true,
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZjLsgEGDPpHdM9nh",
+          "name": "UPLOAD POST"
+        }
+      },
+      "notes": "Generate in upload-post.com the token and add to the credentials in the header-> Authorization: Apikey (token here)"
+    },
+    {
+      "parameters": {
+        "content": "## Upload Video to TikTok",
+        "height": 220,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        520
+      ],
+      "id": "90cf69f8-1500-4582-b1a2-4d024958214b",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Upload Video to Instagram",
+        "height": 220,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        780
+      ],
+      "id": "29147569-b36c-4e7f-bea1-16565b5bdf3f",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * n8n node script that generates a shell script to:\n * 1. Download videos and audio files\n * 2. Merge each video with its corresponding audio and add a text overlay\n * 3. Concatenate all merged videos into a final output optimized for YouTube\n */\n\n// Extract input data from previous nodes\nconst titles = $('Split Out').all().map(item => item?.json?.title);\nconst videoUrls = $('Get Video').all().map(item => item?.json?.video.url);\nconst audioUrls = $('Upload Mp3').all().map(item => item?.json?.webContentLink);\n\n// Configuration options - optimized for YouTube\nconst config = {\n  workDir: \"/tmp/n8n\",\n  finalOutputName: \"final_output.mp4\",\n  videoDuration: 5, // Each video is 5 seconds long\n  video: {\n    width: 720,\n    height: 1280,\n    frameRate: 30,\n    pixelFormat: \"yuv420p\",\n    bitrate: \"4M\" // 4 Mbps is good for 720p portrait video\n  },\n  ffmpeg: {\n    videoCodec: \"libx264\",\n    audioCodec: \"aac\",\n    audioChannels: 2,\n    audioBitrate: \"192k\", // YouTube recommends at least 128k, 192k is good\n    preset: \"medium\" // Balance between encoding speed and quality\n  },\n  transitions: {\n    fadeIn: {\n      enabled: true,\n      duration: 0.5 // Duration in seconds\n    },\n    fadeOut: {\n      enabled: true,\n      duration: 0.5 // Duration in seconds\n    }\n  },\n  textOverlay: {\n    fontColor: \"white\",\n    fontSize: 48,\n    boxColor: \"black@0.5\",\n    boxBorderWidth: 10,\n    topPosition: 20,\n    lineSpacing: 10,\n    font: \"/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf\",\n    maxTextLength: 25,\n    textWidth: 80\n  },\n  metadata: {\n    title: \"Video Compilation\",\n    artist: \"VASA Project\",\n    comment: \"Created with n8n workflow\",\n    copyright: \"© \" + new Date().getFullYear()\n  }\n};\n\n// Generate the FFmpeg text overlay filters for multiple lines\nfunction generateTextFilters(lines, config) {\n  if (!lines || lines.length === 0) return '';\n  \n  const baseY = config.textOverlay.topPosition / 100; // Base position from top as percentage\n  const lineHeight = config.textOverlay.fontSize * 1.5 / config.video.height; // Line height as percentage of video height\n  \n  // Create individual drawtext filters for each line\n  return lines.map((line, index) => {\n    const yPosition = baseY + (index * lineHeight);\n    \n    // Escape single quotes by doubling them for FFmpeg\n    const escapedText = line.replace(/'/g, \"''\");\n    \n    return `drawtext=text='${escapedText}':` +\n           `x=(w-tw)/2:` +\n           `y=h*${yPosition}:` +\n           `fontcolor=${config.textOverlay.fontColor}:` +\n           `fontsize=${config.textOverlay.fontSize}:` +\n           `fontfile=${config.textOverlay.font}:` +\n           `box=1:` +\n           `boxcolor=${config.textOverlay.boxColor}:` +\n           `boxborderw=${config.textOverlay.boxBorderWidth}:` +\n           `fix_bounds=true`;\n  }).join(',');\n}\n\n// Helper function to split title into lines\nfunction splitTitleIntoLines(title, maxLength) {\n  if (!title) return [''];\n  \n  // Normalize spaces and escape quotes for shell safety\n  let escaped = title.replace(/\"/g, '\\\\\"').replace(/\\s+/g, ' ').trim();\n  \n  // Split into words\n  const words = escaped.split(' ').filter(word => word.length > 0);\n  \n  // Create lines respecting the provided maxLength parameter\n  let lines = [];\n  let currentLine = '';\n  \n  words.forEach(word => {\n    if (currentLine.length + word.length + 1 > maxLength && currentLine.length > 0) {\n      lines.push(currentLine);\n      currentLine = word;\n    } else {\n      currentLine += (currentLine ? ' ' : '') + word;\n    }\n  });\n  \n  if (currentLine) {\n    lines.push(currentLine);\n  }\n  \n  // Only force splitting for very short text that's long enough to split\n  if (lines.length === 1 && words.length >= 5 && lines[0].length > maxLength * 0.8) {\n    const midPoint = Math.floor(words.length / 2);\n    const firstLine = words.slice(0, midPoint).join(' ');\n    const secondLine = words.slice(midPoint).join(' ');\n    lines = [firstLine, secondLine];\n  }\n  \n  return lines;\n}\n\n// Generate metadata arguments\nfunction generateMetadataArgs(config) {\n  const metadata = [];\n  \n  if (config.metadata.title) metadata.push(`-metadata title=\"${config.metadata.title}\"`);\n  if (config.metadata.artist) metadata.push(`-metadata artist=\"${config.metadata.artist}\"`);\n  if (config.metadata.comment) metadata.push(`-metadata comment=\"${config.metadata.comment}\"`);\n  if (config.metadata.copyright) metadata.push(`-metadata copyright=\"${config.metadata.copyright}\"`);\n  \n  return metadata.join(' ');\n}\n\n// Generate the shell script header\nlet script = `#!/bin/sh\nset -e\n\n# Create working directory\nWORK_DIR=\"${config.workDir}\"\nmkdir -p $WORK_DIR\ncd $WORK_DIR\n\n# Clean previous files if they exist\nrm -rf $WORK_DIR/video_* $WORK_DIR/audio_* $WORK_DIR/merged_* $WORK_DIR/file_list.txt $WORK_DIR/${config.finalOutputName}\n\n# Download videos and audio files\necho \"Downloading videos and audio files...\"\n`;\n\n// Generate processing steps for each video/audio pair\nfor (let i = 0; i < titles.length; i++) {\n  // Split the title into multiple lines\n  const titleLines = splitTitleIntoLines(titles[i] || `Video ${i}`, config.textOverlay.maxTextLength);\n  \n  // Generate FFmpeg text filters for all lines\n  const textFilters = generateTextFilters(titleLines, config);\n  \n  script += `\n# Processing item ${i}\nVIDEO_URL=\"${videoUrls[i]}\"\nAUDIO_URL=\"${audioUrls[i]}\"\n\necho \"Downloading video ${i}: $VIDEO_URL\"\ncurl -L \"$VIDEO_URL\" -o \"$WORK_DIR/video_${i}.mp4\"\n\necho \"Downloading audio ${i}: $AUDIO_URL\"\ncurl -L \"$AUDIO_URL\" -o \"$WORK_DIR/audio_${i}.mp3\"\n\n# Merge video with audio and add text overlay, ensuring YouTube-compatible format\necho \"Processing video ${i} with title: ${titleLines.join(' ')}\"\nffmpeg -y -i \"$WORK_DIR/video_${i}.mp4\" -i \"$WORK_DIR/audio_${i}.mp3\" \\\\\n  -map 0:v -map 1:a \\\\\n  -c:v ${config.ffmpeg.videoCodec} -c:a ${config.ffmpeg.audioCodec} \\\\\n  -r ${config.video.frameRate} -b:v ${config.video.bitrate} \\\\\n  -pix_fmt ${config.video.pixelFormat} \\\\\n  -ac ${config.ffmpeg.audioChannels} -b:a ${config.ffmpeg.audioBitrate} \\\\\n  -s ${config.video.width}x${config.video.height} \\\\\n  -preset ${config.ffmpeg.preset} \\\\\n  -vf \"scale=${config.video.width}:${config.video.height},setsar=1:1,fade=t=in:st=0:d=${config.transitions.fadeIn.duration},fade=t=out:st=${config.videoDuration - config.transitions.fadeOut.duration}:d=${config.transitions.fadeOut.duration},${textFilters}\" \\\\\n  ${generateMetadataArgs(config)} \\\\\n  \"$WORK_DIR/merged_${i}.mp4\"\n\n# Add to file list\necho \"file '$WORK_DIR/merged_${i}.mp4'\" >> \"$WORK_DIR/file_list.txt\"\n`;\n}\n\n// Generate final concatenation and output info\nscript += `\n# Concatenation with transition handling\necho \"Creating final concatenated video optimized for YouTube...\"\n\n# Two-pass encoding for better quality at the same bitrate\necho \"Performing two-pass encoding for best YouTube quality...\"\nffmpeg -y -f concat -safe 0 -i \"$WORK_DIR/file_list.txt\" \\\\\n  -c:v ${config.ffmpeg.videoCodec} -b:v ${config.video.bitrate} \\\\\n  -pix_fmt ${config.video.pixelFormat} -r ${config.video.frameRate} \\\\\n  -c:a ${config.ffmpeg.audioCodec} -b:a ${config.ffmpeg.audioBitrate} -ac ${config.ffmpeg.audioChannels} \\\\\n  -s ${config.video.width}x${config.video.height} \\\\\n  -preset ${config.ffmpeg.preset} -movflags +faststart \\\\\n  ${generateMetadataArgs(config)} \\\\\n  -pass 1 -f mp4 /dev/null\n\nffmpeg -y -f concat -safe 0 -i \"$WORK_DIR/file_list.txt\" \\\\\n  -c:v ${config.ffmpeg.videoCodec} -b:v ${config.video.bitrate} \\\\\n  -pix_fmt ${config.video.pixelFormat} -r ${config.video.frameRate} \\\\\n  -c:a ${config.ffmpeg.audioCodec} -b:a ${config.ffmpeg.audioBitrate} -ac ${config.ffmpeg.audioChannels} \\\\\n  -s ${config.video.width}x${config.video.height} \\\\\n  -preset ${config.ffmpeg.preset} -movflags +faststart \\\\\n  ${generateMetadataArgs(config)} \\\\\n  -pass 2 \"$WORK_DIR/${config.finalOutputName}\"\n\necho \"Final video created at: $WORK_DIR/${config.finalOutputName}\"\nls -la \"$WORK_DIR/${config.finalOutputName}\"\n\n# Get file size\necho \"File size:\"\ndu -h \"$WORK_DIR/${config.finalOutputName}\"\n\n# Get video information\necho \"Video information:\"\nffprobe -v quiet -print_format json -show_format -show_streams \"$WORK_DIR/${config.finalOutputName}\"\n\n# Print the location for further use\necho \"FINAL_VIDEO_PATH=$WORK_DIR/${config.finalOutputName}\"\n`;\n\n// Return the generated shell script\nreturn { command: script };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        60
+      ],
+      "id": "b6be3d95-a0dd-47c2-92ea-3235e3af746e",
+      "name": "Render Script"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Emotional Trigger\t{{ $json['Emotional Trigger'] }}\nPov Title {{ $json['POV Video Title'] }}\nStory {{ $json['Immersive Scene Description'] }}\n\nFill the missing info from the info above.\nThe video consists of 7 scenes, the first view seconds are everything. This is where you pull the viewer in & actually make them feel like they have woken up in that time period. It needs to be ultra realistic, visually immersive & historically accurate.\nI am creating a viral POV video where the viewer wakes up as [INSERT CHARACTER] in [INSERT TIME PERIOD OR SETTING]. Generate a structured scene breakdown using first-person perspective, focusing on immersion and storytelling.\nStructure: Wake-Up Scene (Legs Scene - Always Included) First-person view, legs stretched out on a [describe setting]. Worn-out [describe clothing/footwear]. A [describe object] nearby, with [describe lighting/mood]. Morning Routine Scene \nFirst-person view, [hands interacting with something], [describe surroundings], [optional: key object in frame].\nTravel/Transition Scene First-person view, moving through [describe location], [describe what’s in the hands], [describe atmosphere]. \nCore Action Scene First-person view, [engaging in the main task], [describe surroundings], [describe tension or focus]. \nMidpoint Break Scene First-person view, [hands holding or interacting with an object], [describe mood], [optional: foreshadowing]. \nSecond Action Scene First-person view, [continuing task with new intensity], [describe change in environment or stakes]. \nFinal Transition Scene First-person view, [wrapping up or moving toward closure], [describe setting shift].\n\nThe prompt for the image generation is the most important, this are some guideances\n\n### Most Important Guidelines\n- Every image must be a first-person perspective shot—the viewer must feel like they are experiencing the moment, not just observing it.\n- A visible limb (hands or feet) must always be present and actively engaged (e.g., gripping, reaching, pushing, lifting, or interacting naturally).\n- The framing must be dynamic and interactive, mimicking real-world human vision, ensuring motion, depth, and immersion, similar to a GoPro or head-mounted camera shot.\n\n### Other Key Guidelines\n- Full-body awareness: The prompt should subtly remind the viewer they have a physical presence (e.g., weight shifting, breath fogging in cold air, or fingers trembling from adrenaline).\n- Sensory depth: Engage multiple senses (sight, touch, temperature, sound, even smell) to heighten realism.\n- World interaction: The hands/feet should not just be visible but should actively interact with the environment (e.g., clutching, adjusting, stepping forward, brushing against surfaces).\n- Keep prompts under 1000 characters in a single cinematic sentence without unnecessary formatting or explanation.\n\n\n### Here are some tips for the prompt: \n- Use keywords such as **POV, GoPro-style, first-person view, point of view** to reinforce immersion.\n- Use action-based verbs like gripping, running, reaching, holding, walking toward, stumbling, climbing, lifting, turning, stepping into.\n- **Never use double quotes** in any output.\n- All scenes must be hyper-realistic, high quality, and cinematic, evoking strong visual and emotional impact.\n- The title for the first scene should include the date like “in YYYY” and one important historic event like “WW2”\n\nThe output be in a table format, so basically each scene has an id (1, 2, 3), a title for the scene, the prompt for the image models called \"prompt\", and the prompt for the sound effects for that scene called \"sound\"."
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        40,
+        60
+      ],
+      "id": "c8ba59ff-ab16-476c-9286-1c2f8d35aad3",
+      "name": "OpenAI - Generate Prompts",
+      "credentials": {
+        "openAiApi": {
+          "id": "f89Adly8QluBo23q",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "={{ $json.command }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        920,
+        60
+      ],
+      "id": "3b604f21-324c-4b25-9541-8ed17741340e",
+      "name": "Execute Command",
+      "executeOnce": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Generate Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to image": {
+      "main": [
+        [
+          {
+            "node": "Image to video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Text to image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image to video": {
+      "main": [
+        [
+          {
+            "node": "Wait 10 min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Mp3": {
+      "main": [
+        [
+          {
+            "node": "Grant Access",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to sound": {
+      "main": [
+        [
+          {
+            "node": "Upload Mp3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video": {
+      "main": [
+        [
+          {
+            "node": "Text to sound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10 min": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube": {
+      "main": [
+        [
+          {
+            "node": "Update google sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video from Disk": {
+      "main": [
+        [
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Generate Prompts": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Script": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Get Video from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grant Access": {
+      "main": [
+        [
+          {
+            "node": "Render Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "pmmbdUTVZKrHXyug"
+  },
+  "versionId": "ea3e72fe-e180-49a1-b842-223b5932b772",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "56ab66c570ed300f9aa13129ef02b55bc429ab4e0bfe9e6d40266d84484892a6"
+  },
+  "id": "pmmbdUTVZKrHXyug",
+  "tags": []
+}
