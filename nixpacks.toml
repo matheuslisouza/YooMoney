@@ -2,4 +2,4 @@
 aptPkgs = ["curl", "ffmpeg"]
 
 [start]
-cmd = "nixpacks.toml"  # Ajuste para o comando correto da sua aplicação
+cmd = "n8n"
