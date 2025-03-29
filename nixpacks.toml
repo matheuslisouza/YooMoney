@@ -2,4 +2,4 @@
 aptPkgs = ["curl", "ffmpeg"]
 
 [start]
-cmd = "POV_videos.json"  # Ajuste para o comando correto da sua aplicação
+cmd = "nixpacks.toml"  # Ajuste para o comando correto da sua aplicação
