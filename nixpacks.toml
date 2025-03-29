@@ -1,2 +1,5 @@
 [phases.setup]
 aptPkgs = ["curl", "ffmpeg"]
+
+[start]
+cmd = "node server.js"  # Ajuste para o comando correto da sua aplicação
