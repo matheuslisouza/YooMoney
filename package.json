@@ -1,10 +1,12 @@
 {
-  "name": "yoomoney",
+  "name": "YooMoney",
   "version": "1.0.0",
+  "description": "n8n workflow for POV videos",
+  "main": "index.js",
   "scripts": {
-    "start": "n8n"
+    "start": "n8n start"
   },
   "dependencies": {
-    "n8n": "latest"
+    "n8n": "^1.84.3"
   }
 }
