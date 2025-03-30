@@ -5,4 +5,5 @@ aptPkgs = ["curl", "ffmpeg"]
 cmds = ["npm install"]
 
 [start]
-cmd = "n8n start --tunnel"
+cmd = "n8n start"
+
